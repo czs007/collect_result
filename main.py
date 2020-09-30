@@ -7,7 +7,10 @@ from parse import  parse_args
 
 input_path = "./"
 output_path = "./"
-log_path = ["results_log", "proxy_result"]
+valid_files = ["proxy.benchmark", "proxy2pulsar.benchmark","query_node_insert.txt",
+               "reader_get_pulsar.txt","write_node_insert.txt","writer_get_pulsar.txt"]
+
+
 result_file = "results.txt"
 results = {}
 
@@ -38,26 +41,27 @@ def collect_result(path, file, role):
 if __name__ == "__main__":
     input_path, output_path = parse_args(sys.argv)
     result_file = os.path.join(output_path, result_file)
-    log_path = [os.path.join(input_path, f) for f in log_path]
 
-    for path in log_path:
-        files = os.listdir(path)
-        for file in files:
-            role = file.replace(".txt", "")
-            results[role] = {}
-            if not os.path.isdir(file):
-                define_result(path, file, role)
-                collect_result(path, file, role)
-            duration = 0
-            for duration_time in results[role]["DurationInMilliseconds"]:
-                duration += duration_time
-            if "results_log" in path:
-                results[role]["AvgSpeed"] = results[role]["NumSince"][-1] / duration * 1000
-            else:
-                num_record = 0
-                for record in results[role]["NumRecords"]:
-                    num_record += record
-                results[role]["AvgSpeed"] = num_record / duration * 1000
+    files = os.listdir(input_path)
+    print("Files:", files)
+    for file in files:
+        if not (file in valid_files): continue
+        print(file)
+        role = file.replace(".txt", "")
+        results[role] = {}
+        if not os.path.isdir(file):
+            define_result(input_path, file, role)
+            collect_result(input_path, file, role)
+        duration = 0
+        for duration_time in results[role]["DurationInMilliseconds"]:
+            duration += duration_time
+        if "benchmark" not in file:
+            results[role]["AvgSpeed"] = results[role]["NumSince"][-1] / duration * 1000
+        else:
+            num_record = 0
+            for record in results[role]["NumRecords"]:
+                num_record += record
+            results[role]["AvgSpeed"] = num_record / duration * 1000
 
     print(results)
     with open(result_file, "w+") as f:
