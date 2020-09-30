@@ -16,7 +16,11 @@ def define_result(path, file, role):
 
 def collect_result(path, file, role):
     f = open(path + "/" + file, 'r')
+    i = 0
     for line in f.readlines():
+        if i == 0:
+            i += 1
+            continue
         line_str = json.loads(line)
         for key in line_str:
             if key == "InsertTime":
