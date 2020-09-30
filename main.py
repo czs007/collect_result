@@ -1,9 +1,14 @@
 import datetime
 import json
 import os
+import sys
 
-log_path = ["./results_log", "./proxy_result"]
-result_file = "./results.txt"
+from parse import  parse_args
+
+input_path = "./"
+output_path = "./"
+log_path = ["results_log", "proxy_result"]
+result_file = "results.txt"
 results = {}
 
 
@@ -31,6 +36,10 @@ def collect_result(path, file, role):
 
 
 if __name__ == "__main__":
+    input_path, output_path = parse_args(sys.argv)
+    result_file = os.path.join(output_path, result_file)
+    log_path = [os.path.join(input_path, f) for f in log_path]
+
     for path in log_path:
         files = os.listdir(path)
         for file in files:
@@ -42,7 +51,7 @@ if __name__ == "__main__":
             duration = 0
             for duration_time in results[role]["DurationInMilliseconds"]:
                 duration += duration_time
-            if path == "./results_log":
+            if "results_log" in path:
                 results[role]["AvgSpeed"] = results[role]["NumSince"][-1] / duration * 1000
             else:
                 num_record = 0
